@@ -1,0 +1,44 @@
+---
+- name: Remote Server Application Port Test
+  hosts: server
+  gather_facts: false
+  vars:
+    web_server: 10.10.10.1
+    syslog_server: 10.10.10.2
+    monitoring_server: 10.10.10.3
+  tasks:
+
+   - name: Monitoring Server IP
+     wait_for:
+      host: "{{ monitoring_server }}"
+      port: "{{ item }}"
+      state: started         # Port should be open
+      delay: 0               # No wait before first check (sec)
+      timeout: 3             # Stop checking after timeout (sec)
+     ignore_errors: true
+     with_items:
+       - 1515
+       - 1514
+
+   - name:  Web Server Port Connection Test
+     wait_for:
+      host: "{{ web_server }}"
+      port: "{{ item }}"
+      state: started
+      delay: 0
+      timeout: 3
+     ignore_errors: true
+     with_items:
+       - 80
+       - 443
+
+   - name:  Log Collector Port Connection Test
+     wait_for:
+      host: "{{ syslog_server }}"
+      port: "{{ item }}"
+      state: started
+      delay: 0
+      timeout: 3
+     ignore_errors: true
+     with_items:
+       - 514
